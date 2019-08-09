@@ -4,6 +4,14 @@ const ctx = cvs.getContext("2d");
 const cvsA1 = document.getElementById("adelanto1");
 const ctxA1 = cvsA1.getContext("2d");
 
+const cvsA2 = document.getElementById("adelanto2");
+const ctxA2 = cvsA2.getContext("2d");
+
+const cvsA3 = document.getElementById("adelanto3");
+const ctxA3 = cvsA3.getContext("2d");
+
+const contextos = [ctxA1,ctxA2,ctxA3];
+
 const scoreElement = document.getElementById("score");
 
 const FILAS = 20;
@@ -11,10 +19,23 @@ const COL = COLUMNAS = 10;
 const SQ = squareSize = 20;
 const NADA = "WHITE"; // color of an empty square
 
-let adelatos = [];
+// the PIEZAS and their colors
+
+const PIEZAS = [
+    [Z,"red"],
+    [S,"green"],
+    [T,"#804000"],
+    [O,"blue"],
+    [L,"purple"],
+    [I,"cyan"],
+    [J,"orange"]
+];
+
+let adelantos = [];
 for(i = 0;i < 3; i++){
-    adelatos[i] = nRandom = Math.floor(Math.random() * 6);
+    adelantos[i] = nRandom = Math.floor(Math.random() * 6);
 }
+
 
 
 
@@ -25,6 +46,10 @@ function drawSquare(x,y,color,contexto){
 
     contexto.strokeStyle = "BLACK";
     contexto.strokeRect(x*SQ,y*SQ,SQ,SQ);
+}
+function drawBlanco(x,y,color,contexto){
+    contexto.fillStyle = color;
+    contexto.fillRect(x*SQ,y*SQ,SQ,SQ);
 }
 
 // create the board
@@ -48,27 +73,19 @@ function drawBoard(){
 
 drawBoard();
 
-// the PIEZAS and their colors
-
-const PIEZAS = [
-    [Z,"red"],
-    [S,"green"],
-    [T,"yellow"],
-    [O,"blue"],
-    [L,"purple"],
-    [I,"cyan"],
-    [J,"orange"]
-];
-
 // generate random PIEZAS
 
 function nuevaPieza(){
     
-    let a = adelatos[0]
+    let a = adelantos[0]
     
-    adelatos[0] = adelatos [1];
-    adelatos[1] = adelatos [2];
-    adelatos[2] = nRandom = Math.floor(Math.random() * PIEZAS.length);
+    adelantos[0] = adelantos [1];
+    adelantos[1] = adelantos [2];
+    adelantos[2] = nRandom = Math.floor(Math.random() * PIEZAS.length);
+    for(i = 0;i < 3; i++){
+        borrarCanvas(contextos[i]);
+        dibujarAdelanto(adelantos[i],contextos[i]);
+    }
     return new Pieza( PIEZAS[a][0],PIEZAS[a][1]);
 }
 
@@ -92,13 +109,21 @@ function Pieza(tetromino,color){
 
 // codigo de el nitro
 
-function dibujarAdelanto (){
-    for( r = 0; r < this.activeTetromino.length; r++){
-        for(c = 0; c < this.activeTetromino.length; c++){
-            // we draw only occupied squares
-            if( this.activeTetromino[r][c]){
-                drawSquare(this.x + c,this.y + r, color,ctx);
+function dibujarAdelanto (adelanto,contexto){
+    let a = PIEZAS[adelanto][0];
+    let b = a[0];
+    for( r = 0; r < b.length; r++){
+        for(c = 0; c < b.length; c++){
+            if( b[r][c]){
+                drawSquare(c,r,PIEZAS[adelanto][1],contexto);
             }
+        }
+    }
+}
+function borrarCanvas(contexto){
+    for( r = 0; r < 4; r++){
+        for(c = 0; c < 4; c++){
+            drawBlanco(c,r,NADA,contexto);
         }
     }
 }
