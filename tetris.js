@@ -10,6 +10,9 @@ const ctxA2 = cvsA2.getContext("2d");
 const cvsA3 = document.getElementById("adelanto3");
 const ctxA3 = cvsA3.getContext("2d");
 
+const cvsG = document.getElementById("guardado");
+const ctxG = cvsG.getContext("2d");
+
 const contextos = [ctxA1,ctxA2,ctxA3];
 
 const scoreElement = document.getElementById("score");
@@ -75,22 +78,27 @@ drawBoard();
 
 // generate random PIEZAS
 
-function nuevaPieza(){
-    
-    let a = adelantos[0]
-    
-    adelantos[0] = adelantos [1];
-    adelantos[1] = adelantos [2];
-    adelantos[2] = nRandom = Math.floor(Math.random() * PIEZAS.length);
-    for(i = 0;i < 3; i++){
-        borrarCanvas(contextos[i]);
-        dibujarAdelanto(adelantos[i],contextos[i]);
+function nuevaPieza(condicion){
+    if(condicion){
+        let a = adelantos[0]
+        
+        adelantos[0] = adelantos [1];
+        adelantos[1] = adelantos [2];
+        adelantos[2] = nRandom = Math.floor(Math.random() * PIEZAS.length);
+        for(i = 0;i < 3; i++){
+            borrarCanvas(contextos[i]);
+            dibujarAdelanto(adelantos[i],contextos[i]);
+        }
+        return new Pieza( PIEZAS[a][0],PIEZAS[a][1]);
     }
-    return new Pieza( PIEZAS[a][0],PIEZAS[a][1]);
+    else{
+        return new Pieza(fichaGuardada[0],fichaGuardada[1]);
+    }
+
 }
 
 
-let p = nuevaPieza();
+let p = nuevaPieza(true);
 
 // The Object Pieza
 
@@ -109,6 +117,49 @@ function Pieza(tetromino,color){
 
 // codigo de el nitro
 
+let fichaGuardada = [];
+let guardar = true;
+Pieza.prototype.guardarFicha = function(){
+    if(fichaGuardada == 0){
+        if(guardar){
+            fichaGuardada[0] = this.tetromino;
+            fichaGuardada[1] = this.color;
+            dibujarGuardado(fichaGuardada[0],fichaGuardada[1],ctxG);
+            p.desDibujar();
+            p = nuevaPieza(true);
+            
+            guardar = false;
+        }
+    }
+    else{
+        if(guardar){
+            let tetro = this.tetromino;
+            let colo = this.color;
+            p.desDibujar();
+            p = nuevaPieza(false);
+            fichaGuardada[0] = tetro;
+            fichaGuardada[1] = colo;
+            borrarCanvas(ctxG);
+            dibujarGuardado(fichaGuardada[0],fichaGuardada[1],ctxG);
+            guardar = false;
+        }
+    } 
+}
+
+function cambioFicha(){
+
+}
+
+function dibujarGuardado (guardado,color,contexto){
+    let b = guardado[0];
+    for( r = 0; r < b.length; r++){
+        for(c = 0; c < b.length; c++){
+            if( b[r][c]){
+                drawSquare(c,r,color,contexto);
+            }
+        }
+    }
+}
 function dibujarAdelanto (adelanto,contexto){
     let a = PIEZAS[adelanto][0];
     let b = a[0];
@@ -127,6 +178,8 @@ function borrarCanvas(contexto){
         }
     }
 }
+
+
 
 //fin de el codigo de el nitro
 
@@ -158,7 +211,7 @@ Pieza.prototype.desDibujar = function(){
 
 // move Down the Pieza
 
-Pieza.prototype.moverAbajo = function(){
+Pieza.prototype.moverAbajoL = function(){
     if(!this.colision(0,1,this.activeTetromino)){
         this.desDibujar();
         this.y++;
@@ -166,9 +219,16 @@ Pieza.prototype.moverAbajo = function(){
     }else{
         // we lock the Pieza and generate a new one
         this.lock();
-        p = nuevaPieza();
+        p = nuevaPieza(true);
     }
     
+}
+Pieza.prototype.moverAbajo = function(){
+    if(!this.colision(0,1,this.activeTetromino)){
+        this.desDibujar();
+        this.y++;
+        this.draw();
+    }
 }
 
 // move Right the Pieza
@@ -255,6 +315,8 @@ Pieza.prototype.lock = function(){
             score += 10;
         }
     }
+
+    guardar = true;
     // update the board
     drawBoard();
     
@@ -308,6 +370,8 @@ function CONTROL(event){
         dropStart = Date.now();
     }else if(event.keyCode == 40){
         p.moverAbajo();
+    }else if(event.keyCode == 67){
+        p.guardarFicha();
     }
 }
 
@@ -318,8 +382,8 @@ let gameOver = false;
 function drop(){
     let now = Date.now();
     let delta = now - dropStart;
-    if(delta > 1000){
-        p.moverAbajo();
+    if(delta > 200){
+        p.moverAbajoL();
         dropStart = Date.now();
     }
     if( !gameOver){
