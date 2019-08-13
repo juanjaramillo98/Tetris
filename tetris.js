@@ -100,6 +100,8 @@ function nuevaPieza(condicion){
 
 let p = nuevaPieza(true);
 
+
+
 // The Object Pieza
 
 function Pieza(tetromino,color){
@@ -229,6 +231,14 @@ Pieza.prototype.moverAbajo = function(){
         this.y++;
         this.draw();
     }
+}
+
+Pieza.prototype.moverFullAbajo = function(){
+    while(!this.colision(0,1,this.activeTetromino)){
+        this.desDibujar();
+        this.y++;
+    }
+    this.draw();
 }
 
 // move Right the Pieza
@@ -372,6 +382,8 @@ function CONTROL(event){
         p.moverAbajo();
     }else if(event.keyCode == 67){
         p.guardarFicha();
+    }else if(event.keyCode == 32){
+        p.moverFullAbajo();
     }
 }
 
