@@ -21,6 +21,9 @@ const FILAS = 20;
 const COL = COLUMNAS = 10;
 const SQ = squareSize = 20;
 const NADA = "WHITE"; // color of an empty square
+const GHOST = "GRAY";
+
+
 
 // the PIEZAS and their colors
 
@@ -89,16 +92,20 @@ function nuevaPieza(condicion){
             borrarCanvas(contextos[i]);
             dibujarAdelanto(adelantos[i],contextos[i]);
         }
+        
         return new Pieza( PIEZAS[a][0],PIEZAS[a][1]);
+        
     }
     else{
+
         return new Pieza(fichaGuardada[0],fichaGuardada[1]);
+        
     }
 
 }
 
-
 let p = nuevaPieza(true);
+let g = new Pieza (p.tetromino,GHOST);
 
 
 
@@ -148,9 +155,7 @@ Pieza.prototype.guardarFicha = function(){
     } 
 }
 
-function cambioFicha(){
 
-}
 
 function dibujarGuardado (guardado,color,contexto){
     let b = guardado[0];
@@ -179,6 +184,15 @@ function borrarCanvas(contexto){
             drawBlanco(c,r,NADA,contexto);
         }
     }
+}
+
+Pieza.prototype.dibujarFantasma = function(){
+
+    this.desDibujar();
+    this.y = -10;
+    this.x = p.x;
+    this.activeTetromino = p.activeTetromino;
+    this.moverFullAbajo();
 }
 
 
@@ -217,11 +231,14 @@ Pieza.prototype.moverAbajoL = function(){
     if(!this.colision(0,1,this.activeTetromino)){
         this.desDibujar();
         this.y++;
+        g.dibujarFantasma();
         this.draw();
+
     }else{
         // we lock the Pieza and generate a new one
         this.lock();
         p = nuevaPieza(true);
+        g.y=-10;
     }
     
 }
@@ -229,16 +246,26 @@ Pieza.prototype.moverAbajo = function(){
     if(!this.colision(0,1,this.activeTetromino)){
         this.desDibujar();
         this.y++;
+        g.dibujarFantasma();
         this.draw();
+
     }
 }
 
 Pieza.prototype.moverFullAbajo = function(){
-    while(!this.colision(0,1,this.activeTetromino)){
-        this.desDibujar();
+    
+    this.desDibujar();
+    while(!this.colision(0,1,this.activeTetromino)){        
         this.y++;
     }
     this.draw();
+    if(this.color!=GHOST){
+        this.lock();
+        p = nuevaPieza(true);
+        g.y=-10;
+    }
+
+
 }
 
 // move Right the Pieza
@@ -246,7 +273,9 @@ Pieza.prototype.moverDerecha = function(){
     if(!this.colision(1,0,this.activeTetromino)){
         this.desDibujar();
         this.x++;
+        g.dibujarFantasma();
         this.draw();
+
     }
 }
 
@@ -255,7 +284,10 @@ Pieza.prototype.moverIzquierda = function(){
     if(!this.colision(-1,0,this.activeTetromino)){
         this.desDibujar();
         this.x--;
+        g.dibujarFantasma();
         this.draw();
+
+
     }
 }
 
@@ -280,6 +312,7 @@ Pieza.prototype.rotar = function(){
         this.tetrominoN = (this.tetrominoN + 1)%this.tetromino.length; // (0+1)%4 => 1
         this.activeTetromino = this.tetromino[this.tetrominoN];
         this.draw();
+        g.dibujarFantasma();
     }
 }
 
@@ -356,7 +389,7 @@ Pieza.prototype.colision = function(x,y,Pieza){
                 continue;
             }
             // check if there is a locked Pieza alrady in place
-            if( board[newY][newX] != NADA){
+            if( board[newY][newX] != NADA && board[newY][newX] != GHOST){
                 return true;
             }
         }
@@ -384,6 +417,8 @@ function CONTROL(event){
         p.guardarFicha();
     }else if(event.keyCode == 32){
         p.moverFullAbajo();
+    }else if(event.keyCode == 85){
+        drawBoard();
     }
 }
 
@@ -394,7 +429,7 @@ let gameOver = false;
 function drop(){
     let now = Date.now();
     let delta = now - dropStart;
-    if(delta > 200){
+    if(delta > 2000){
         p.moverAbajoL();
         dropStart = Date.now();
     }
