@@ -1,0 +1,42 @@
+<html>
+<head>
+    <title>Tetris Game JS</title>
+    <style>
+        #score{
+            display: inline-block;
+        }
+        div{
+            font-size: 25px;
+            font-weight: bold;
+            font-family: monospace;
+            text-align: center;
+        }
+        canvas{
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>
+                <canvas id="guardado" width="80" height="80"></canvas>
+            </td>
+            <td>
+                <canvas id="tetris" width="200" height="400"></canvas>
+            </td>
+            <td rowspan="3">
+                <canvas id="adelanto1" width="80" height="80"></canvas>
+                <canvas id="adelanto2" width="80" height="80"></canvas>
+                <canvas id="adelanto3" width="80" height="80"></canvas>
+            </td>
+        </tr>
+    </table>
+    <div>
+        Score : <div id="score">0</div>
+    </div>
+    <script src="publico/tetrominoes.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="publico/tetris.js"></script>
+</body>
+</html>
