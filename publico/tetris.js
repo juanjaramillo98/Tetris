@@ -437,7 +437,7 @@ let gameOver = false;
 function drop(){
     let now = Date.now();
     let delta = now - dropStart;
-    if(delta > 200){
+    if(delta > 800){
         p.moverAbajoL();
         dropStart = Date.now();
     }
