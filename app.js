@@ -4,7 +4,9 @@ var app = express();
 var path = require('path');
 var partida = {palabra:"",pista:"" };
 
-var serv = app.listen(2000);
+app.set('port', process.env.PORT || 3000)
+
+var serv = app.listen(app.get('port'));
 
 app.get('/',function(req, res) {
 	res.sendFile(path.join(__dirname , 'publico','index.html'));
