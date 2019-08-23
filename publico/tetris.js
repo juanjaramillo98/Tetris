@@ -6,15 +6,15 @@ const ctx = cvs.getContext("2d");
 
 const cvsA1 = document.getElementById("adelanto1");
 const ctxA1 = cvsA1.getContext("2d");
-
 const cvsA2 = document.getElementById("adelanto2");
 const ctxA2 = cvsA2.getContext("2d");
-
 const cvsA3 = document.getElementById("adelanto3");
 const ctxA3 = cvsA3.getContext("2d");
 
 const cvsG = document.getElementById("guardado");
 const ctxG = cvsG.getContext("2d");
+
+
 
 const contextos = [ctxA1,ctxA2,ctxA3];
 
@@ -25,6 +25,7 @@ const COL = COLUMNAS = 10;
 const SQ = squareSize = 20;
 const NADA = "WHITE"; // color of an empty square
 const GHOST = "GRAY";
+const LINEA = "BLACK"
 
 socket.on('bajar',() => {
     p.moverAbajoL();
@@ -160,7 +161,31 @@ Pieza.prototype.guardarFicha = function(){
     } 
 }
 
-
+function lineaGris(){
+    for(y = 1; y <= FILAS; y++){
+        if(y == FILAS){
+            for(x = 0; x <= COL;x++){
+                board[y-1][x] = LINEA; 
+            }
+        }else{
+            for(x = 0; x <= COL;x++){
+                board[y-1][x] = board[y][x]; 
+            }
+        }     
+    }
+    drawBoard();
+}
+function quitarLineaGris(){
+    for( y = FILAS-1; y > 0; y--){
+        for( c = 0; c < COL; c++){
+            board[y][c] = board[y-1][c];
+        }
+    }
+    for( c = 0; c < COL; c++){
+        board[0][c] = NADA;
+    }
+    drawBoard();
+}
 
 function dibujarGuardado (guardado,color,contexto){
     let b = guardado[0];
@@ -345,7 +370,7 @@ Pieza.prototype.lock = function(){
     for(r = 0; r < FILAS; r++){
         let isFILASFull = true;
         for( c = 0; c < COL; c++){
-            isFILASFull = isFILASFull && (board[r][c] != NADA);
+            isFILASFull = isFILASFull && (board[r][c] != NADA) && (board[r][c] != LINEA);
         }
         if(isFILASFull){
             // if the FILAS is full
@@ -411,13 +436,11 @@ document.addEventListener("keydown",CONTROL);
 function CONTROL(event){
     if(event.keyCode == 37){
         p.moverIzquierda();
-        dropStart = Date.now();
     }else if(event.keyCode == 38){
         p.rotar();
-        dropStart = Date.now();
+        socket.emit('update',JSON.stringify(board));
     }else if(event.keyCode == 39){
         p.moverDerecha();
-        dropStart = Date.now();
     }else if(event.keyCode == 40){
         p.moverAbajo();
     }else if(event.keyCode == 67){
@@ -426,6 +449,10 @@ function CONTROL(event){
         p.moverFullAbajo();
     }else if(event.keyCode == 85){
         drawBoard();
+    }else if(event.keyCode == 76){
+        lineaGris();
+    }else if(event.keyCode == 79){
+        quitarLineaGris();
     }
 }
 
@@ -437,7 +464,7 @@ let gameOver = false;
 function drop(){
     let now = Date.now();
     let delta = now - dropStart;
-    if(delta > 800){
+    if(delta > 300){
         p.moverAbajoL();
         dropStart = Date.now();
     }
