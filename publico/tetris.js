@@ -14,6 +14,9 @@ const ctxA3 = cvsA3.getContext("2d");
 const cvsG = document.getElementById("guardado");
 const ctxG = cvsG.getContext("2d");
 
+const cvsE1 = document.getElementById("adelanto1");
+const ctxE1 = cvsE1.getContext("2d");
+
 
 
 const contextos = [ctxA1,ctxA2,ctxA3];
@@ -131,6 +134,10 @@ function Pieza(tetromino,color){
 
 
 // codigo de el nitro
+
+socket.on("update",(jugadorE)=>{
+    console.log(jugadorE[0],"me mando esto",JSON.parse(jugadorE[1]));
+});
 
 let fichaGuardada = [];
 let guardar = true;
@@ -438,7 +445,6 @@ function CONTROL(event){
         p.moverIzquierda();
     }else if(event.keyCode == 38){
         p.rotar();
-        socket.emit('update',JSON.stringify(board));
     }else if(event.keyCode == 39){
         p.moverDerecha();
     }else if(event.keyCode == 40){
@@ -448,6 +454,7 @@ function CONTROL(event){
     }else if(event.keyCode == 32){
         p.moverFullAbajo();
     }else if(event.keyCode == 85){
+        socket.emit('update',JSON.stringify(board));
         drawBoard();
     }else if(event.keyCode == 76){
         lineaGris();

@@ -35,7 +35,7 @@ io.on('connection',(socket)=>{
 		if (socket.id != jugador[0]){
 			console.log("que es lo que tranza",jugador[0]);
 		}else{
-			console.log("yo fui",jugador);
+			console.log("yo fui",jugador[0]);
 		}
 		
 	}
@@ -44,10 +44,10 @@ io.on('connection',(socket)=>{
 		for( var i = 0; i < jugadores.length; i++){ 
 			if ( jugadores[i][0] === socket.id) {
 			  jugadores[i][1] = data;
+			  socket.emit("update",jugadores[i]);
 			}
 		}
 		jugadores.forEach(update);
-
 	});
 
     socket.on('linea',() =>{
