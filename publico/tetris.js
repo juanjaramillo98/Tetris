@@ -14,8 +14,9 @@ const ctxA3 = cvsA3.getContext("2d");
 const cvsG = document.getElementById("guardado");
 const ctxG = cvsG.getContext("2d");
 
-const cvsE1 = document.getElementById("adelanto1");
+const cvsE1 = document.getElementById("tetris1");
 const ctxE1 = cvsE1.getContext("2d");
+
 
 
 
@@ -26,6 +27,7 @@ const scoreElement = document.getElementById("score");
 const FILAS = 20;
 const COL = COLUMNAS = 10;
 const SQ = squareSize = 20;
+const SQE = 10; 
 const NADA = "WHITE"; // color of an empty square
 const GHOST = "GRAY";
 const LINEA = "BLACK"
@@ -135,9 +137,29 @@ function Pieza(tetromino,color){
 
 // codigo de el nitro
 
+let boardE=[];
 socket.on("update",(jugadorE)=>{
     console.log(jugadorE[0],"me mando esto",JSON.parse(jugadorE[1]));
+    boardE = JSON.parse(jugadorE[1]);
+    dibujarTableroE();
 });
+
+function dibujarTableroE(){
+    for( r = 0; r <FILAS; r++){
+        for(c = 0; c < COL; c++){
+            drawSquareE(c,r,boardE[r][c],ctxE1);
+        }
+    }
+}
+function drawSquareE(x,y,color,contexto){
+    contexto.fillStyle = color;
+    contexto.fillRect(x*SQE,y*SQE,SQE,SQE);
+
+    contexto.strokeStyle = "BLACK";
+    contexto.strokeRect(x*SQE,y*SQE,SQE,SQE);
+}
+
+
 
 let fichaGuardada = [];
 let guardar = true;
@@ -400,6 +422,7 @@ Pieza.prototype.lock = function(){
     guardar = true;
     // update the board
     drawBoard();
+    socket.emit('update',JSON.stringify(board));
     
     // update the score
     scoreElement.innerHTML = score;
@@ -452,6 +475,7 @@ function CONTROL(event){
     }else if(event.keyCode == 67){
         p.guardarFicha();
     }else if(event.keyCode == 32){
+        socket.emit('update',JSON.stringify(board));
         p.moverFullAbajo();
     }else if(event.keyCode == 85){
         socket.emit('update',JSON.stringify(board));
